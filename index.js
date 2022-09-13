@@ -4,6 +4,20 @@ const app = express();
 
 // to parse req body into JSON before route handler is called
 app.use(express.json());
+// custom middleware => catching requests made to non-existent routes
+const requestLogger = (request, response, next) => {
+	console.log('Method: ', request.method);
+	console.log('Path:  ', request.path)
+	console.log('Body:  ', request.body)
+	console.log('---')
+	next()
+}
+app.use(requestLogger);
+
+const unknownEndpoint = (request, response) => {
+	response.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint);
 
 let persons = [
 	{
@@ -105,5 +119,5 @@ app.listen(PORT, () => {
 
 // helper fns
 const generateId = () => {
-	return Math.floor(Math.random() * (persons.length ** 20));
+	return Math.floor(Math.random() * (persons.length ** 5));
 }
