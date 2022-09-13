@@ -59,17 +59,30 @@ app.get('/api/info', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
 	const body = request.body;
-	console.log(body);
+	const { name, number } = body;
 	
-	if (!body.name) {
+	if (!name) {
 		return response.status(400).json({
 			error: 'Missing name'
 		});
 	}
 
+	if (!number) {
+		return response.status(400).json({
+			error: 'Missing number'
+		});
+	}
+
+	if (persons.some(p => p.name === name)) {
+		console.log('here');
+		return response.status(400).json({
+			error: 'Name must be unique'
+		})
+	}
+
 	const person = {
-		name: body.name,
-		number: body.number,
+		name,
+		number,
 		id: generateId()
 	}
 
@@ -92,7 +105,5 @@ app.listen(PORT, () => {
 
 // helper fns
 const generateId = () => {
-	const maxId = persons.length > 0 ? Math.max(...persons.map(p => p.id)) : 0;
-
-	return maxId + 1;
+	return Math.floor(Math.random() * (persons.length ** 20));
 }
