@@ -5,9 +5,15 @@ const morgan = require('morgan');
 
 // to parse req body into JSON before route handler is called
 app.use(express.json());
-//morgan
+//morgan log
+morgan.token('postData', (request) => {
+	if (request.method === 'POST') {
+		return ' ' + JSON.stringify(request.body);
+	}
+	return ' '
+})
 app.use(
-	morgan('tiny')
+	morgan(':method :url :status :res[content-length] - :response-time ms :postData')
 )
 
 let persons = [
