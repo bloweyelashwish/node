@@ -16,26 +16,29 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema);
 
-if (process.argv.length < 4) {
-    console.log('Phonebook: ');
-    Person.find({})
-        .then((persons)=> {
-           persons.forEach(({ name, number }) => {
-               console.log(`${name} ${number}`);
-           });
-           mongoose.connection.close();
-        })
-        .catch((error) => console.log(error));
-} else {
-    const person = new Person({
-        name: process.argv[3],
-        number: process.argv[4],
-    });
-    person.save()
-        .then(({ name, number }) => {
-            console.log(`added ${name} number ${number} to phonebook`);
-            mongoose.connection.close();
-        })
-}
-
-mongoose.connect(url).catch(error => console.log(error));
+mongoose.connect(url)
+    .then((result) => {
+        console.log('connected')
+        if (process.argv.length < 4) {
+            console.log('here')
+            console.log('Phonebook: ')
+            Person.find({})
+                .then((people) => {
+                    people.forEach(({name, number}) => {
+                        console.log(`${name} ${number}`);
+                    });
+                    mongoose.connection.close();
+                })
+        } else {
+            const person = new Person({
+                name: process.argv[3],
+                number: process.argv[4],
+            });
+            return person.save()
+                .then(({ name, number }) => {
+                    console.log(`added ${name} number ${number} to phonebook`);
+                    return mongoose.connection.close();
+                })
+                .catch((err) => console.log(err))
+        }
+    })
