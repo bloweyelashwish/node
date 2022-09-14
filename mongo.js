@@ -10,8 +10,16 @@ const password = process.argv[2];
 const url = `mongodb+srv://bloweyelashwish:${password}@cluster0.u2zujg3.mongodb.net/phonebookApp?retryWrites=true&w=majority`
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        minLength: 5,
+        required: true,
+    },
+    number: {
+        type: String,
+        minLength: 8,
+        required: true,
+    },
 })
 
 personSchema.set('toJSON', {
