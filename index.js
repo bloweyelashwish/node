@@ -2,7 +2,10 @@ const express = require('express');
 const { request, response } = require('express');
 const app = express();
 const morgan = require('morgan');
+const cors = require('cors');
 
+// allow requests from all origins
+app.use(cors())
 // to parse req body into JSON before route handler is called
 app.use(express.json());
 //morgan log
@@ -116,7 +119,7 @@ const unknownEndpoint = (req, res) => {
 app.use(unknownEndpoint);
 
 
-const PORT = 3003;
+const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
 	console.log(`Server: ${PORT}`);
 })
