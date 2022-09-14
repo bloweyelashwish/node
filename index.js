@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const { request, response } = require('express');
 const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
+const Person = require('./models/person');
 
 // view static
 app.use(express.static('build'))
@@ -49,18 +51,15 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-	response.json(persons);
+	Person.find({}).then(persons => {
+		response.json(persons);
+	})
 })
 
 app.get('/api/persons/:id', (request, response) => {
-	const id = Number(request.params.id);
-	const person = persons.find(person => person.id === id);
-
-	if (person) {	
-	response.json(person);
-	} else {
-		response.status(404).end();
-	}
+	Person.findById(request.params.id).then(person => {
+		response.json(person)
+	})
 })
 
 app.get('/api/info', (request, response) => {
@@ -75,36 +74,19 @@ app.get('/api/info', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
 	const body = request.body;
-	const { name, number } = body;
-	
-	if (!name) {
-		return response.status(400).json({
-			error: 'Missing name'
-		});
+
+	if (body.name === undefined) {
+		return response.status(400).json({ error: 'Missing name' })
 	}
 
-	if (!number) {
-		return response.status(400).json({
-			error: 'Missing number'
-		});
-	}
+	const person = new Person({
+		name: body.name,
+		number: body.number,
+	})
 
-	if (persons.some(p => p.name === name)) {
-		console.log('here');
-		return response.status(400).json({
-			error: 'Name must be unique'
-		})
-	}
-
-	const person = {
-		name,
-		number,
-		id: generateId()
-	}
-
-	persons = persons.concat(person);
-
-	response.json(person);
+	person.save().then(savedPerson => {
+		response.json(savedPerson) // cb ensures that the response is sent only if the operation succeeded
+	})
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -114,14 +96,14 @@ app.delete('/api/persons/:id', (request, response) => {
 	response.status(204).end()
 })
 
-const unknownEndpoint = (req, res) => {
-	res.status(404).send({ error: 'unknown endpoint' });
+const unknownEndpoint = (request, response) => {
+	response.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(unknownEndpoint);
 
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
 	console.log(`Server: ${PORT}`);
 })
