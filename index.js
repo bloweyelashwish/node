@@ -1,23 +1,14 @@
 const express = require('express');
 const { request, response } = require('express');
 const app = express();
+const morgan = require('morgan');
 
 // to parse req body into JSON before route handler is called
 app.use(express.json());
-// custom middleware => catching requests made to non-existent routes
-const requestLogger = (request, response, next) => {
-	console.log('Method: ', request.method);
-	console.log('Path:  ', request.path)
-	console.log('Body:  ', request.body)
-	console.log('---')
-	next()
-}
-app.use(requestLogger);
-
-const unknownEndpoint = (request, response) => {
-	response.status(404).send({ error: 'unknown endpoint' })
-}
-app.use(unknownEndpoint);
+//morgan
+app.use(
+	morgan('tiny')
+)
 
 let persons = [
 	{
@@ -111,6 +102,13 @@ app.delete('/api/persons/:id', (request, response) => {
 
 	response.status(204).end()
 })
+
+const unknownEndpoint = (req, res) => {
+	res.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
+
 
 const PORT = 3003;
 app.listen(PORT, () => {
