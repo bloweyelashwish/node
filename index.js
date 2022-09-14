@@ -4,6 +4,8 @@ const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
 
+// view static
+app.use(express.static('build'))
 // allow requests from all origins
 app.use(cors())
 // to parse req body into JSON before route handler is called
